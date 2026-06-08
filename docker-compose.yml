@@ -1,0 +1,30 @@
+services:
+  runbook-ai-publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: runbook-ai-publisher:latest
+    container_name: runbook-ai-publisher
+    restart: always
+
+    env_file:
+      - .env
+
+    environment:
+      NODE_ENV: production
+      PORT: 5055
+      SQLITE_DB_PATH: /app/data/runbook-import.db
+      UPLOAD_DIR: /app/uploads
+      MARKITDOWN_COMMAND: markitdown
+      MARKITDOWN_TIMEOUT_MS: 120000
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: 1
+
+    ports:
+      - "127.0.0.1:5055:5055"
+
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
