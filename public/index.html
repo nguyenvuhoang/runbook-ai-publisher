@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Runbook AI Publisher</title>
+
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: rgba(15, 23, 42, 0.88);
+            --card2: rgba(30, 41, 59, 0.8);
+            --border: rgba(148, 163, 184, 0.22);
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --primary: #6366f1;
+            --primary2: #8b5cf6;
+            --green: #22c55e;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --blue: #38bdf8;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+            --radius: 22px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Quicksand, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.28), transparent 32%),
+                radial-gradient(circle at top right, rgba(56, 189, 248, 0.16), transparent 26%),
+                radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.22), transparent 28%),
+                var(--bg);
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 34px 0 50px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary2));
+            box-shadow: 0 14px 35px rgba(99, 102, 241, 0.38);
+            font-size: 26px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 42px);
+            letter-spacing: -0.04em;
+        }
+
+        .subtitle {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--yellow);
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+        }
+
+        .dot.ok {
+            background: var(--green);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.52);
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .card-desc {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 650;
+            color: #cbd5e1;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.86);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 12px 13px;
+            outline: none;
+            transition: 0.18s ease;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+            line-height: 1.45;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(99, 102, 241, 0.9);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+        }
+
+        .file-drop {
+            border: 1.5px dashed rgba(148, 163, 184, 0.36);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 18px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-align: center;
+        }
+
+        .file-drop:hover {
+            border-color: rgba(99, 102, 241, 0.8);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            margin: 0 auto 12px;
+            display: grid;
+            place-items: center;
+            background: rgba(99, 102, 241, 0.16);
+            font-size: 24px;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            color: var(--blue);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 15px;
+            padding: 13px 15px;
+            color: white;
+            font-weight: 750;
+            cursor: pointer;
+            transition: 0.18s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.06);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary2));
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+        }
+
+        .btn-dark {
+            background: rgba(51, 65, 85, 0.98);
+        }
+
+        .result-empty {
+            min-height: 520px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 36px;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            width: 82px;
+            height: 82px;
+            border-radius: 28px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 18px;
+            background: rgba(99, 102, 241, 0.14);
+            font-size: 36px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-item {
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.54);
+            border-radius: 16px;
+            padding: 14px;
+            min-width: 0;
+        }
+
+        .summary-label {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 14px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.22);
+        }
+
+        .badge.success {
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.22);
+        }
+
+        .badge.error {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.22);
+        }
+
+        .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        a.link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 13px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #c4b5fd;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .preview-wrap {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            background: #020617;
+        }
+
+        .preview-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            max-height: 520px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #dbeafe;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            max-width: 420px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            color: var(--text);
+            transform: translateY(120%);
+            opacity: 0;
+            transition: 0.25s ease;
+            z-index: 50;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .small {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 960px) {
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-tab {
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 23, 42, 0.75);
+            color: #94a3b8;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .preview-tab:hover {
+            transform: none;
+            filter: none;
+            background: rgba(99, 102, 241, 0.16);
+            color: #c4b5fd;
+        }
+
+        .preview-tab.active {
+            background: rgba(99, 102, 241, 0.28);
+            color: #ddd6fe;
+            border-color: rgba(99, 102, 241, 0.55);
+        }
+
+        .markdown-render {
+            padding: 24px;
+            max-height: 620px;
+            overflow: auto;
+            color: #e5e7eb;
+            line-height: 1.72;
+            font-size: 14px;
+        }
+
+        .markdown-render h1,
+        .markdown-render h2,
+        .markdown-render h3 {
+            color: #f8fafc;
+            line-height: 1.3;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        .markdown-render h1 {
+            font-size: 28px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            padding-bottom: 12px;
+        }
+
+        .markdown-render h2 {
+            font-size: 22px;
+        }
+
+        .markdown-render h3 {
+            font-size: 17px;
+        }
+
+        .markdown-render p {
+            margin: 10px 0;
+        }
+
+        .markdown-render ul,
+        .markdown-render ol {
+            padding-left: 22px;
+        }
+
+        .markdown-render li {
+            margin: 6px 0;
+        }
+
+        .markdown-render code {
+            background: rgba(99, 102, 241, 0.16);
+            color: #c4b5fd;
+            padding: 2px 6px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .markdown-render pre {
+            background: #020617;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 14px;
+            padding: 16px;
+            overflow: auto;
+            white-space: pre;
+            max-height: none;
+        }
+
+        .markdown-render pre code {
+            background: transparent;
+            color: #dbeafe;
+            padding: 0;
+        }
+
+        .markdown-render blockquote {
+            border-left: 4px solid #6366f1;
+            margin: 16px 0;
+            padding: 8px 14px;
+            background: rgba(99, 102, 241, 0.09);
+            color: #cbd5e1;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .markdown-render table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .markdown-render th,
+        .markdown-render td {
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            padding: 10px 12px;
+        }
+
+        .markdown-render th {
+            background: rgba(99, 102, 241, 0.18);
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <section class="hero">
+            <div class="brand">
+                <div class="logo">📚</div>
+                <div>
+                    <h1>Runbook AI Publisher</h1>
+                    <p class="subtitle">Upload tài liệu, AI chuyển thành Markdown, tạo PR vào Runbook Knowledge Base.
+                    </p>
+                </div>
+            </div>
+
+            <div class="status">
+                <span id="healthDot" class="dot"></span>
+                <span id="healthText">Checking backend...</span>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Đưa nội dung về kho</h2>
+                    <p class="card-desc">Chọn file, category và chế độ xử lý. Nên test Generate Preview trước khi tạo
+                        PR.</p>
+                </div>
+
+                <div class="card-body">
+                    <form id="uploadForm">
+                        <div class="field">
+                            <label>File tài liệu</label>
+                            <div class="file-drop" id="fileDrop">
+                                <div class="file-icon">⬆️</div>
+                                <strong>Click để chọn file</strong>
+                                <div class="small">PDF, DOCX, MD, TXT, HTML, CSV, JSON...</div>
+                                <div id="fileName" class="file-name"></div>
+                            </div>
+                            <input id="fileInput" class="hidden" type="file" name="file" required />
+                        </div>
+
+                        <div class="field">
+                            <label>Câu lệnh</label>
+                            <textarea id="commandText" name="commandText">Đưa nội dung này về kho</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="field">
+                                <label>Category</label>
+                                <select id="category" name="category">
+                                    <option value="auto">Auto Detect</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Mode</label>
+                                <select id="mode" name="mode">
+                                    <option value="review">Review / Create PR</option>
+                                    <option value="publish">Publish directly</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Created By</label>
+                            <input id="createdBy" name="createdBy" value="admin" />
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" class="btn-dark" id="btnConvert">Convert Only</button>
+                            <button type="button" class="btn-blue" id="btnPreview">Generate Preview</button>
+                            <button type="button" class="btn-primary" id="btnCreatePr">Create Pull Request</button>
+                        </div>
+                    </form>
+
+                    <p class="small" style="margin-top: 16px;">
+                        Convert Only: chỉ chạy MarkItDown. Generate Preview: chạy AI nhưng chưa push GitHub. Create Pull
+                        Request: chạy full flow.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Kết quả xử lý</h2>
+                    <p class="card-desc">Preview Markdown, đường dẫn PR và publish URL sẽ hiển thị ở đây.</p>
+                </div>
+
+                <div id="resultArea">
+                    <div class="result-empty">
+                        <div>
+                            <div class="empty-icon">✨</div>
+                            <h3>Chưa có kết quả</h3>
+                            <p>Upload file và chọn một chế độ xử lý để bắt đầu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <script>
+        const apiBase = "";
+        let lastMarkdownText = "";
+        let lastGeneratedResult = null;
+        let lastGeneratedSnapshot = "";
+        const fileDrop = document.getElementById("fileDrop");
+        const fileInput = document.getElementById("fileInput");
+        const fileName = document.getElementById("fileName");
+        const resultArea = document.getElementById("resultArea");
+        const toast = document.getElementById("toast");
+
+        const btnConvert = document.getElementById("btnConvert");
+        const btnPreview = document.getElementById("btnPreview");
+        const btnCreatePr = document.getElementById("btnCreatePr");
+
+        fileDrop.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files?.[0];
+            fileName.textContent = file ? file.name : "";
+        });
+
+        document.getElementById("commandText").addEventListener("input", clearGeneratedCache);
+        document.getElementById("category").addEventListener("change", clearGeneratedCache);
+        document.getElementById("createdBy").addEventListener("input", clearGeneratedCache);
+
+        btnConvert.addEventListener("click", () => submitImport({ convertOnly: true }));
+        btnPreview.addEventListener("click", () => submitImport({ dryRun: true }));
+        btnCreatePr.addEventListener("click", () => submitImport({}));
+
+        init();
+
+        async function init() {
+            await checkHealth();
+            await loadCategories();
+        }
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${apiBase}/health`);
+                const data = await res.json();
+
+                document.getElementById("healthDot").classList.toggle("ok", Boolean(data.success));
+                document.getElementById("healthText").textContent = data.success
+                    ? "Backend online"
+                    : "Backend unavailable";
+            } catch {
+                document.getElementById("healthText").textContent = "Backend offline";
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${apiBase}/api/knowledge/categories`);
+                const json = await res.json();
+
+                if (!json.success) return;
+
+                const select = document.getElementById("category");
+
+                for (const item of json.data) {
+                    const option = document.createElement("option");
+                    option.value = item.value;
+                    option.textContent = item.label;
+                    select.appendChild(option);
+                }
+            } catch {
+                showToast("Không load được danh sách category.");
+            }
+        }
+
+        async function submitImport(options) {
+            const file = fileInput.files?.[0];
+
+            if (!file) {
+                showToast("Vui lòng chọn file trước.");
+                return;
+            }
+
+            setLoading(true);
+
+            const form = new FormData();
+            form.append("file", file);
+            form.append("commandText", document.getElementById("commandText").value || "Đưa nội dung này về kho");
+            form.append("mode", document.getElementById("mode").value);
+            form.append("createdBy", document.getElementById("createdBy").value || "admin");
+            form.append("category", document.getElementById("category").value || "auto");
+
+            if (options.convertOnly) {
+                form.append("convertOnly", "true");
+            }
+
+            if (options.dryRun) {
+                form.append("dryRun", "true");
+            }
+
+            renderLoading(options);
+
+            try {
+                const res = await fetch(`${apiBase}/api/knowledge/import`, {
+                    method: "POST",
+                    body: form,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    renderError(data);
+                    showToast(data.message || "Xử lý thất bại.");
+                    return;
+                }
+
+                renderResult(data);
+                showToast("Xử lý thành công.");
+            } catch (error) {
+                renderError({ message: error.message });
+                showToast(error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function renderLoading(options) {
+            const label = options.convertOnly
+                ? "Đang convert file sang Markdown..."
+                : options.dryRun
+                    ? "Đang generate Markdown bằng AI..."
+                    : "Đang tạo Pull Request trên GitHub...";
+
+            resultArea.innerHTML = `
+        <div class="result-empty">
+          <div>
+            <div class="empty-icon">⏳</div>
+            <h3>${escapeHtml(label)}</h3>
+            <p>Vui lòng đợi, file lớn có thể mất vài phút.</p>
+          </div>
+        </div>
+      `;
+        }
+
+        function renderResult(data) {
+            const statusClass = data.status === "PR_CREATED" || data.status === "PUBLISHED" || data.status === "GENERATED"
+                ? "success"
+                : "";
+
+            const preview = data.markdownPreview || "";
+            const title = data.title || data.originalFileName || "Converted Markdown";
+            const category = data.categoryTitle || data.category || "auto";
+
+            resultArea.innerHTML = `
+        <div class="card-body">
+          <div style="margin-bottom: 16px;">
+            <span class="badge ${statusClass}">● ${escapeHtml(data.status || "SUCCESS")}</span>
+          </div>
+
+          <div class="summary">
+            <div class="summary-item">
+              <div class="summary-label">Job ID</div>
+              <div class="summary-value">${escapeHtml(String(data.jobId || ""))}</div>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-label">Category</div>
+              <div class="summary-value">${escapeHtml(category)}</div>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-label">Title</div>
+              <div class="summary-value">${escapeHtml(title)}</div>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-label">Markdown Path</div>
+              <div class="summary-value">${escapeHtml(data.markdownPath || "-")}</div>
+            </div>
+          </div>
+
+          <div class="links">
+            ${data.pullRequestUrl ? `<a class="link-btn" href="${escapeAttr(data.pullRequestUrl)}" target="_blank">🔀 Open Pull Request</a>` : ""}
+            ${data.publishUrl ? `<a class="link-btn" href="${escapeAttr(data.publishUrl)}" target="_blank">🌐 Open Publish URL</a>` : ""}
+          </div>
+
+          <div class="preview-wrap">
+            <div class="preview-head">
+              <span>Markdown Preview</span>
+              <span>${escapeHtml(String(data.markdownLength || preview.length || 0))} chars</span>
+            </div>
+            <pre>${escapeHtml(preview || JSON.stringify(data, null, 2))}</pre>
+          </div>
+        </div>
+      `;
+        }
+
+        function renderError(data) {
+            resultArea.innerHTML = `
+        <div class="card-body">
+          <div style="margin-bottom: 16px;">
+            <span class="badge error">● FAILED</span>
+          </div>
+
+          <div class="preview-wrap">
+            <div class="preview-head">
+              <span>Error</span>
+            </div>
+            <pre>${escapeHtml(data.message || JSON.stringify(data, null, 2))}</pre>
+          </div>
+        </div>
+      `;
+        }
+
+        function setLoading(isLoading) {
+            btnConvert.disabled = isLoading;
+            btnPreview.disabled = isLoading;
+            btnCreatePr.disabled = isLoading;
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function escapeAttr(value) {
+            return escapeHtml(value);
+        }
+
+        function renderResult(data) {
+            const statusClass = data.status === "PR_CREATED" || data.status === "PUBLISHED" || data.status === "GENERATED"
+                ? "success"
+                : "";
+
+            const preview = data.markdownContent || data.markdownPreview || "";
+            lastMarkdownText = preview;
+
+            const title = data.title || data.originalFileName || "Converted Markdown";
+            const category = data.categoryTitle || data.category || "auto";
+
+            resultArea.innerHTML = `
+    <div class="card-body">
+      <div style="margin-bottom: 16px;">
+        <span class="badge ${statusClass}">● ${escapeHtml(data.status || "SUCCESS")}</span>
+      </div>
+
+      <div class="summary">
+        <div class="summary-item">
+          <div class="summary-label">Job ID</div>
+          <div class="summary-value">${escapeHtml(String(data.jobId || ""))}</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Category</div>
+          <div class="summary-value">${escapeHtml(category)}</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Title</div>
+          <div class="summary-value">${escapeHtml(title)}</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Markdown Path</div>
+          <div class="summary-value">${escapeHtml(data.markdownPath || "-")}</div>
+        </div>
+      </div>
+
+      <div class="links">
+        ${data.pullRequestUrl ? `<a class="link-btn" href="${escapeAttr(data.pullRequestUrl)}" target="_blank">🔀 Open Pull Request</a>` : ""}
+        ${data.publishUrl ? `<a class="link-btn" href="${escapeAttr(data.publishUrl)}" target="_blank">🌐 Open Publish URL</a>` : ""}
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-head">
+          <span>Markdown Preview</span>
+
+          <div class="preview-toolbar">
+            <button type="button" id="btnRawPreview" class="preview-tab active" onclick="setPreviewMode('raw')">Raw</button>
+            <button type="button" id="btnHtmlPreview" class="preview-tab" onclick="setPreviewMode('html')">Preview</button>
+          </div>
+
+          <span>${escapeHtml(String(data.markdownLength || preview.length || 0))} chars</span>
+        </div>
+
+        <div id="rawPreviewPanel">
+          <pre>${escapeHtml(preview || JSON.stringify(data, null, 2))}</pre>
+        </div>
+
+        <div id="htmlPreviewPanel" class="markdown-render hidden"></div>
+      </div>
+    </div>
+  `;
+
+            renderMarkdownHtmlPreview();
+        }
+
+        function setPreviewMode(mode) {
+            const rawPanel = document.getElementById("rawPreviewPanel");
+            const htmlPanel = document.getElementById("htmlPreviewPanel");
+            const btnRaw = document.getElementById("btnRawPreview");
+            const btnHtml = document.getElementById("btnHtmlPreview");
+
+            if (!rawPanel || !htmlPanel || !btnRaw || !btnHtml) {
+                return;
+            }
+
+            const isHtml = mode === "html";
+
+            rawPanel.classList.toggle("hidden", isHtml);
+            htmlPanel.classList.toggle("hidden", !isHtml);
+
+            btnRaw.classList.toggle("active", !isHtml);
+            btnHtml.classList.toggle("active", isHtml);
+
+            if (isHtml) {
+                renderMarkdownHtmlPreview();
+            }
+        }
+
+        function renderMarkdownHtmlPreview() {
+            const htmlPanel = document.getElementById("htmlPreviewPanel");
+
+            if (!htmlPanel) {
+                return;
+            }
+
+            if (!lastMarkdownText) {
+                htmlPanel.innerHTML = "<p>No markdown content.</p>";
+                return;
+            }
+
+            if (window.marked && window.DOMPurify) {
+                const rawHtml = window.marked.parse(lastMarkdownText);
+                htmlPanel.innerHTML = window.DOMPurify.sanitize(rawHtml);
+                return;
+            }
+
+            htmlPanel.innerHTML = `<pre>${escapeHtml(lastMarkdownText)}</pre>`;
+        }
+        function getCurrentFormSnapshot() {
+            const file = fileInput.files?.[0];
+
+            return JSON.stringify({
+                fileName: file ? file.name : "",
+                fileSize: file ? file.size : 0,
+                commandText: document.getElementById("commandText").value || "",
+                category: document.getElementById("category").value || "auto",
+                createdBy: document.getElementById("createdBy").value || "admin",
+            });
+        }
+
+        function clearGeneratedCache() {
+            lastGeneratedResult = null;
+            lastGeneratedSnapshot = "";
+        }
+    </script>
+</body>
+
+</html>

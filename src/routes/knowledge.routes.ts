@@ -61,7 +61,7 @@ router.post("/import", upload.single("file"), async (req, res) => {
 
     const rawMarkdown = await extractMarkdownFromFile(
       file.path,
-      file.originalname
+      file.originalname,
     );
 
     updateImportJob(jobId, {
@@ -80,6 +80,7 @@ router.post("/import", upload.single("file"), async (req, res) => {
         originalFileName: file.originalname,
         markdownLength: rawMarkdown.length,
         markdownPreview: rawMarkdown.substring(0, 3000),
+        markdownContent: rawMarkdown,
         message: "File converted to raw Markdown successfully.",
       });
     }
@@ -119,6 +120,7 @@ router.post("/import", upload.single("file"), async (req, res) => {
         markdownPath,
         markdownLength: safeMarkdown.length,
         markdownPreview: safeMarkdown.substring(0, 5000),
+        markdownContent: safeMarkdown,
         tags: generated.tags,
         message:
           "Runbook Markdown generated successfully. GitHub publish skipped because dryRun=true.",
@@ -193,6 +195,96 @@ router.get("/imports", (_req, res) => {
     success: true,
     data: jobs,
   });
+});
+
+router.post("/imports/:id/publish", async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    const job = getImportJobById(id) as any;
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Import job not found",
+      });
+    }
+
+    if (!job.GeneratedMarkdown) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This job does not have generated Markdown. Please generate preview first.",
+      });
+    }
+
+    if (!job.Category || !job.FileName || !job.MarkdownPath) {
+      return res.status(400).json({
+        success: false,
+        message: "This job is missing category, fileName, or markdownPath.",
+      });
+    }
+
+    const mode = normalizeMode(req.body.mode);
+
+    let navTitle = job.Title || job.FileName;
+
+    if (job.GeneratedJson) {
+      try {
+        const generatedJson = JSON.parse(job.GeneratedJson);
+        navTitle = generatedJson.navTitle || generatedJson.title || navTitle;
+      } catch {
+        // Ignore invalid GeneratedJson
+      }
+    }
+
+    const githubResult = await publishToGithub({
+      mode,
+      category: job.Category,
+      navTitle,
+      markdownPath: job.MarkdownPath,
+      markdownContent: job.GeneratedMarkdown,
+    });
+
+    const finalStatus = mode === "publish" ? "PUBLISHED" : "PR_CREATED";
+
+    updateImportJob(id, {
+      status: finalStatus,
+      gitBranch: githubResult.branch,
+      pullRequestUrl: githubResult.pullRequestUrl,
+      commitSha: githubResult.commitSha,
+      publishUrl: githubResult.publishUrl,
+    });
+
+    return res.json({
+      success: true,
+      jobId: id,
+      mode,
+      status: finalStatus,
+      title: job.Title,
+      category: job.Category,
+      categoryTitle: categoryTitles[job.Category] || job.Category,
+      fileName: job.FileName,
+      markdownPath: job.MarkdownPath,
+      pullRequestUrl: githubResult.pullRequestUrl,
+      publishUrl: githubResult.publishUrl,
+      message:
+        mode === "publish"
+          ? "Runbook published successfully from existing preview."
+          : "Runbook Pull Request created successfully from existing preview.",
+    });
+  } catch (error: any) {
+    updateImportJob(id, {
+      status: "FAILED",
+      errorMessage: error.message,
+    });
+
+    return res.status(500).json({
+      success: false,
+      jobId: id,
+      message: error.message,
+    });
+  }
 });
 
 router.get("/imports/:id", (req, res) => {
